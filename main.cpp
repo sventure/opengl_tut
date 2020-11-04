@@ -56,17 +56,42 @@ int main()
 
 	int success;
 	char infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	                                                                            
+
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);	                                                                            
 	if (!success)
 	{
 		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;            //checks if vertex shader works
+		cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;                      //checks if vertex shader works
 	}
 
 	unsigned int fragmentShader;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);                        //create fragment shader
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glCompileShader(fragmentShader);                                            //attach created fragment shader to the fragment shader source (init at the top of the code)
+	
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+		cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << endl;         //checks if fragment shader works
+	}
+
+	unsigned int shaderProgram;                            
+	shaderProgram = glCreateProgram();                       //create shader program to render
+
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);           //attach/link both shaders to the program
+	glLinkProgram(shaderProgram);
+
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);                             //checks if program works
+		cout << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n" << infoLog << endl;
+	}
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);                    //delete vertex and fragment shader after usnig them
 
 
 
@@ -86,6 +111,9 @@ int main()
 			3rd parameter is the actual data we want to send
 			4th parameter specifies how we want the graphics card to manage the given data. */
 
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);    //check https://learnopengl.com/Getting-started/Hello-Triangle under "Linking Vertex Attributes" for reference
+	glEnableVertexAttribArray(0);
+
 	glViewport(0, 0, 800, 600);                                                 //create viewport
 	
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -96,8 +124,13 @@ int main()
 	{
 		processInput(window);
 
+
 		glClearColor(0.7f, 0.2f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);              //clear the color buffer, the entire color buffer will be filled with the color as configured  
+
+
+		glUseProgram(shaderProgram);               //uses previously defined shader program
+
 
 		glfwSwapBuffers(window);         //will swap the color buffer that is used to render to during this render iteration and show it as output to the screen.
 		glfwPollEvents();                //checks if any events are triggered
