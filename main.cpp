@@ -24,10 +24,6 @@ void processInput(GLFWwindow* window);
 
 int main()
 {
-	/* In the main function we first initialize GLFW with glfwInit, after which we can configure GLFW using glfwWindowHint.
-	The first argument of glfwWindowHint tells us what option we want to configure, where we can select the option from a
-	large enum of possible options prefixed with GLFW_. The second argument is an integer that sets the value of our option. */
-
 	glfwInit();                                                         //initialize glfw
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);                      //sets major and minor version to 3.0+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -101,9 +97,13 @@ int main()
 	 0.0f,  0.5f, 0.0f,
 	};
 
-	unsigned int VBO;
+	unsigned int VBO, VAO;
+	glGenVertexArrays(1, &VAO);                                                 //generate a vertex array
 	glGenBuffers(1, &VBO);                                                      //generate a vertex buffer
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);                                         //binds the created buffer to GL_ARRAY_BUFFER buffer type
+
+	glBindVertexArray(VAO);                                                     //binds vertex array object
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);                                         //binds vertex buffer to GL_ARRAY_BUFFER buffer type
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);  //copies the buffer info to the currently bound buffer
 
 	/* ^^^  1st argument is the type of the buffer we want to copy data into
@@ -130,6 +130,8 @@ int main()
 
 
 		glUseProgram(shaderProgram);               //uses previously defined shader program
+		glBindVertexArray(VAO);                    //bind VAO again with updated settings
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 
 		glfwSwapBuffers(window);         //will swap the color buffer that is used to render to during this render iteration and show it as output to the screen.
