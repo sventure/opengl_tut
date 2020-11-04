@@ -92,12 +92,19 @@ int main()
 
 
 	float vertices[] = {
-	-0.5f, -0.5f, 0.0f,                     //triangle vertices
-	 0.5f, -0.5f, 0.0f,
-	 0.0f,  0.5f, 0.0f,
+	 0.5f,  0.5f, 0.0f,  // top right
+	 0.5f, -0.5f, 0.0f,  // bottom right
+	-0.5f, -0.5f, 0.0f,  // bottom left
+	-0.5f,  0.5f, 0.0f   // top left 
 	};
 
-	unsigned int VBO, VAO;
+	unsigned int indices[] = {
+		0, 1, 3,         //first triangle
+		1, 2, 3          //second trtiangle
+	};
+
+	unsigned int VBO, VAO, EBO;
+	glGenBuffers(1, &EBO);                                                      //generate an element buffer
 	glGenVertexArrays(1, &VAO);                                                 //generate a vertex array
 	glGenBuffers(1, &VBO);                                                      //generate a vertex buffer
 
@@ -105,6 +112,9 @@ int main()
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);                                         //binds vertex buffer to GL_ARRAY_BUFFER buffer type
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);  //copies the buffer info to the currently bound buffer
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	/* ^^^  1st argument is the type of the buffer we want to copy data into
 	        2nd argument specifies the size of the data (in bytes) we want to pass to the buffer
@@ -129,9 +139,13 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);              //clear the color buffer, the entire color buffer will be filled with the color as configured  
 
 
-		glUseProgram(shaderProgram);               //uses previously defined shader program
-		glBindVertexArray(VAO);                    //bind VAO again with updated settings
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glUseProgram(shaderProgram);                           //uses previously defined shader program
+		glBindVertexArray(VAO);                                //bind VAO again with updated settings (update the array??)
+		glBindBuffer(GL_ARRAY_BUFFER, EBO);                    //bind EBO again with updated settings (update the buffer??)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);             //wireframe mode
+		glDrawArrays(GL_TRIANGLES, 0, 3);                      //draw Triangle
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);   //draw rectangle
+
 
 
 		glfwSwapBuffers(window);         //will swap the color buffer that is used to render to during this render iteration and show it as output to the screen.
