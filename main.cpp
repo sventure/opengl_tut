@@ -92,15 +92,13 @@ int main()
 
 
 	float vertices[] = {
-	 0.5f,  0.5f, 0.0f,  // top right
-	 0.5f, -0.5f, 0.0f,  // bottom right
-	-0.5f, -0.5f, 0.0f,  // bottom left
-	-0.5f,  0.5f, 0.0f   // top left 
+	-0.5f, -0.5f, 0.0f,  // bottom left - 0
+	 0.5f, -0.5f, 0.0f,  // bottom right - 1
+	 0.0f,  0.5f, 0.0f   // top - 2
 	};
 
 	unsigned int indices[] = {
-		0, 1, 3,         //first triangle
-		1, 2, 3          //second trtiangle
+		0, 1, 2          //first triangle
 	};
 
 	unsigned int VBO, VAO, EBO;
@@ -142,9 +140,9 @@ int main()
 		glUseProgram(shaderProgram);                           //uses previously defined shader program
 		glBindVertexArray(VAO);                                //bind VAO again with updated settings (update the array??)
 		glBindBuffer(GL_ARRAY_BUFFER, EBO);                    //bind EBO again with updated settings (update the buffer??)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);             //wireframe mode
-		glDrawArrays(GL_TRIANGLES, 0, 3);                      //draw Triangle
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);   //draw rectangle
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);           //wireframe mode
+		//glDrawArrays(GL_TRIANGLES, 0, 3);                    //draw Triangle
+		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);   //draw elements
 
 
 
