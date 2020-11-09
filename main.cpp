@@ -4,19 +4,20 @@
 
 const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
-"out vec4 vertexColor;\n"
+"layout (location = 1) in vec3 aColor;\n"
+"out vec3 ourColor;\n"
 "void main()\n"                                                                          //a basic vertex shader
 "{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"   vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
+"   gl_Position = vec4(aPos, 1.0);\n"
+"   ourColor = aColor;\n"
 "}\0";
 
 const char* fragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
-"uniform vec4 ourColor;\n"
+"in vec3 ourColor;\n"
 "void main()\n"                                                                          //orange fragment shader
 "{\n"
-"   FragColor = ourColor;\n"
+"   FragColor = vec4(ourColor, 1.0);\n"
 "}\n\0";
 
 using namespace std;
@@ -95,9 +96,10 @@ int main()
 
 
 	float vertices[] = {
-	-0.5f, -0.5f, 0.0f,  // bottom left - 0
-	 0.5f, -0.5f, 0.0f,  // bottom right - 1
-	 0.0f,  0.5f, 0.0f   // top - 2
+		//vertices      
+	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // bottom left 
+	 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  // bottom right 
+	 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f   // top 
 	};
 
 	unsigned int indices[] = {
@@ -122,8 +124,13 @@ int main()
 			3rd parameter is the actual data we want to send
 			4th parameter specifies how we want the graphics card to manage the given data. */
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);    //check https://learnopengl.com/Getting-started/Hello-Triangle under "Linking Vertex Attributes" for reference
+	//pos attrib
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);    //check https://learnopengl.com/Getting-started/Hello-Triangle under "Linking Vertex Attributes" for reference
 	glEnableVertexAttribArray(0);
+
+	//color attrib
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));    
+	glEnableVertexAttribArray(1);
 
 	glViewport(0, 0, 800, 600);                                                 //create viewport
 	
@@ -144,12 +151,12 @@ int main()
 		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 	
 		glUseProgram(shaderProgram);                           //uses previously defined shader program
-		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);       //finds uniform var location with corresponding 4 floats (colors in this case)
 		glBindVertexArray(VAO);                                //bind VAO again with updated settings (update the array??)
 		glBindBuffer(GL_ARRAY_BUFFER, EBO);                    //bind EBO again with updated settings (update the buffer??)
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);           //wireframe mode
-		//glDrawArrays(GL_TRIANGLES, 0, 3);                    //draw Triangle
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);   //draw elements
+	//  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);             //wireframe mode
+		glDrawArrays(GL_TRIANGLES, 0, 3);                      //draw Triangle
+	//	glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);   //draw elements
 
 
 
