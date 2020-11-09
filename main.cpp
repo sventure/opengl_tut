@@ -1,24 +1,7 @@
 //#include"libs.h"
 
 #include"libs.h"
-
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"layout (location = 1) in vec3 aColor;\n"
-"out vec3 ourColor;\n"
-"void main()\n"                                                                          //a basic vertex shader
-"{\n"
-"   gl_Position = vec4(aPos, 1.0);\n"
-"   ourColor = aColor;\n"
-"}\0";
-
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"in vec3 ourColor;\n"
-"void main()\n"                                                                          //orange fragment shader
-"{\n"
-"   FragColor = vec4(ourColor, 1.0);\n"
-"}\n\0";
+#include"shaders.h"
 
 using namespace std;
 
@@ -49,49 +32,7 @@ int main()
 		return -1;
 	}
 
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);                            //create vertex shader
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);                                              //attach created vertex shader to the vertex shader source (init at the top of the code)
-
-	int success;
-	char infoLog[512];
-
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);	                                                                            
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;                      //checks if vertex shader works
-	}
-
-	unsigned int fragmentShader;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);                        //create fragment shader
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);                                            //attach created fragment shader to the fragment shader source (init at the top of the code)
-	
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << endl;         //checks if fragment shader works
-	}
-
-	unsigned int shaderProgram;                            
-	shaderProgram = glCreateProgram();                       //create shader program to render
-
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);           //attach/link both shaders to the program
-	glLinkProgram(shaderProgram);
-
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);                             //checks if program works
-		cout << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n" << infoLog << endl;
-	}
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);                    //delete vertex and fragment shader after usnig them
+	Shader ourShader("D:/OpenGL Shaders/vertexShader.txt","D:/OpenGL Shaders/fragmentShader.txt");
 
 
 
@@ -145,13 +86,15 @@ int main()
 
 		glClearColor(0.7f, 0.2f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);              //clear the color buffer, the entire color buffer will be filled with the color as configured  
-
+/*
 		float timeValue = glfwGetTime();
 		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;                               //changing color
 		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 	
 		glUseProgram(shaderProgram);                           //uses previously defined shader program
 		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);       //finds uniform var location with corresponding 4 floats (colors in this case)
+		*/
+		ourShader.use();
 		glBindVertexArray(VAO);                                //bind VAO again with updated settings (update the array??)
 		glBindBuffer(GL_ARRAY_BUFFER, EBO);                    //bind EBO again with updated settings (update the buffer??)
 	//  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);             //wireframe mode
