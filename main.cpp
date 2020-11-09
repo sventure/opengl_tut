@@ -13,10 +13,10 @@ const char* vertexShaderSource = "#version 330 core\n"
 
 const char* fragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
-"in vec4 vertexColor;\n"
+"uniform vec4 ourColor;\n"
 "void main()\n"                                                                          //orange fragment shader
 "{\n"
-"   FragColor = vertexColor;\n"
+"   FragColor = ourColor;\n"
 "}\n\0";
 
 using namespace std;
@@ -139,8 +139,12 @@ int main()
 		glClearColor(0.7f, 0.2f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);              //clear the color buffer, the entire color buffer will be filled with the color as configured  
 
-
+		float timeValue = glfwGetTime();
+		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;                               //changing color
+		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+	
 		glUseProgram(shaderProgram);                           //uses previously defined shader program
+		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 		glBindVertexArray(VAO);                                //bind VAO again with updated settings (update the array??)
 		glBindBuffer(GL_ARRAY_BUFFER, EBO);                    //bind EBO again with updated settings (update the buffer??)
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);           //wireframe mode
