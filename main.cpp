@@ -1,7 +1,7 @@
 //#include"libs.h"
 
-#include"libs.h"
-#include"shaders.h"
+#include "libs.h"
+#include "shaders.h"
 
 using namespace std;
 
@@ -32,7 +32,7 @@ int main()
 		return -1;
 	}
 
-	Shader ourShader("D:/OpenGL Shaders/vertexShader.txt","D:/OpenGL Shaders/fragmentShader.txt");
+	Shader ourShader("D:/Visual Studio repo/opengl_tut/shaders/vertexShader.vs","D:/Visual Studio repo/opengl_tut/shaders/fragmentShader.fs");
 
 
 
