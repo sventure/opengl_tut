@@ -82,6 +82,7 @@
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(WindowsSdkDir)\lib;$(SolutionDir)\linking\GLFW\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -131,10 +132,12 @@
   <ItemGroup>
     <ClCompile Include="linking\GLAD\src\glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="stb_image_cpp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="libs.h" />
     <ClInclude Include="shaders.h" />
+    <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

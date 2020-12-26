@@ -2,6 +2,7 @@
 
 #include "libs.h"
 #include "shaders.h"
+#include "stb_image.h"
 
 using namespace std;
 
@@ -37,14 +38,16 @@ int main()
 
 
 	float vertices[] = {
-		//vertices      
-	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // bottom left 
-	 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  // bottom right 
-	 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f   // top 
+		// positions          // colors           // texture coords
+			 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+			 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+			-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+			-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
 	};
 
 	unsigned int indices[] = {
-		0, 1, 2          //first triangle
+		0, 1, 3,          //first triangle
+		1, 2, 3           //second triangle
 	};
 
 	unsigned int VBO, VAO, EBO;
@@ -66,12 +69,75 @@ int main()
 			4th parameter specifies how we want the graphics card to manage the given data. */
 
 	//pos attrib
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);    //check https://learnopengl.com/Getting-started/Hello-Triangle under "Linking Vertex Attributes" for reference
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);    //check https://learnopengl.com/Getting-started/Hello-Triangle under "Linking Vertex Attributes" for reference
 	glEnableVertexAttribArray(0);
 
 	//color attrib
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));    
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3* sizeof(float)));    
 	glEnableVertexAttribArray(1);
+
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+
+
+	//texture 1
+	unsigned int texture1;
+	glGenTextures(1, &texture1);  //takes as input how many textures we want to generate and stores them in a unsigned int array given as its second argument
+	glBindTexture(GL_TEXTURE_2D, texture1);  //bind textures
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);  //tex wrapping for x coord (s)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);  //tex wrapping for y coord (t)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  //tex filtering for minify
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);  //tex filtering for magnify
+	// load and generate the texture
+	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load("D:/Visual Studio repo/opengl_tut/Textures/container.jpg", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		
+		/* ^^^  1st argument specifies the texture target
+			    2nd argument specifies the mipmap level
+			    3rd argument tells OpenGL in what kind of format we want to store the texture
+			    4th and 5th argument sets the width and height of the resulting texture. 
+				7th and 8th argument specify the format and datatype of the source image.
+				The last argument is the actual image data.*/
+
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+
+	//texture 1
+	unsigned int texture2;
+	glGenTextures(1, &texture2);  //takes as input how many textures we want to generate and stores them in a unsigned int array given as its second argument
+	glBindTexture(GL_TEXTURE_2D, texture2);  //bind textures
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);  //tex wrapping for x coord (s)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);  //tex wrapping for y coord (t)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  //tex filtering for minify
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);  //tex filtering for magnify
+	// load and generate the texture
+	stbi_set_flip_vertically_on_load(true);
+	data = stbi_load("D:/Visual Studio repo/opengl_tut/Textures/pepsi.png", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);   //rgba here for alpha (png transparency)
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+
+	ourShader.use(); // don't forget to activate the shader before setting uniforms!  
+	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0); // set it manually
+	ourShader.setInt("texture2", 1); // or with shader class
 
 	glViewport(0, 0, 800, 600);                                                 //create viewport
 	
@@ -94,12 +160,17 @@ int main()
 		glUseProgram(shaderProgram);                           //uses previously defined shader program
 		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);       //finds uniform var location with corresponding 4 floats (colors in this case)
 		*/
+
+		glActiveTexture(GL_TEXTURE0);                          //activate texture 1
+		glBindTexture(GL_TEXTURE_2D, texture1);                //bind texture 1
+		glActiveTexture(GL_TEXTURE1);                          //activate texture 2
+		glBindTexture(GL_TEXTURE_2D, texture2);                //bind texture 2 
 		ourShader.use();
-		glBindVertexArray(VAO);                                //bind VAO again with updated settings (update the array??)
-		glBindBuffer(GL_ARRAY_BUFFER, EBO);                    //bind EBO again with updated settings (update the buffer??)
+		glBindVertexArray(VAO);                                //bind VAO again with updated settings 
+		glBindBuffer(GL_ARRAY_BUFFER, EBO);                    //bind EBO again with updated settings 
 	//  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);             //wireframe mode
-		glDrawArrays(GL_TRIANGLES, 0, 3);                      //draw Triangle
-	//	glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);   //draw elements
+	//	glDrawArrays(GL_TRIANGLES, 0, 3);                      //draw Triangle
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);   //draw elements
 
 
 
