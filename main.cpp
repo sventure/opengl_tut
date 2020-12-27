@@ -38,11 +38,47 @@ int main()
 
 
 	float vertices[] = {
-		// positions          // colors           // texture coords
-			 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-			 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-			-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-			-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
 	unsigned int indices[] = {
@@ -69,14 +105,14 @@ int main()
 			4th parameter specifies how we want the graphics card to manage the given data. */
 
 	//pos attrib
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);    //check https://learnopengl.com/Getting-started/Hello-Triangle under "Linking Vertex Attributes" for reference
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);    //check https://learnopengl.com/Getting-started/Hello-Triangle under "Linking Vertex Attributes" for reference
 	glEnableVertexAttribArray(0);
 
 	//color attrib
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3* sizeof(float)));    
-	glEnableVertexAttribArray(1);
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3* sizeof(float)));    
+	//glEnableVertexAttribArray(1);
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
 
@@ -145,15 +181,6 @@ int main()
 
 	// ^^^ When the window is first displayed framebuffer_size_callback gets called as well with the resulting window dimensions.\
 
-	glm::mat4 trans = glm::mat4(1.0f);                                                    //trans is a identity matrix
-	trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));            //rotate it by 90 degrees in z axis (Our polygon is in XY plane)
-	trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));                                  //scale it down to half the size
-
-	unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");          //find uniform transform in our shader code
-	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
-
-
-
 	while (!glfwWindowShouldClose(window)) 
 	{
 		processInput(window);
@@ -178,21 +205,46 @@ int main()
 		glBindVertexArray(VAO);                                //bind VAO again with updated settings 
 		glBindBuffer(GL_ARRAY_BUFFER, EBO);                    //bind EBO again with updated settings 
 	//  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);             //wireframe mode
-	//	glDrawArrays(GL_TRIANGLES, 0, 3);                      //draw Triangle
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);   //draw elements
+		glDrawArrays(GL_TRIANGLES, 0, 36);                      //draw Triangle
+	//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);   //draw elements
 
-		glm::mat4 trans = glm::mat4(1.0f);                                                 //identity matrix
-		trans = glm::translate(trans, glm::vec3(sin((float)glfwGetTime() ^ 2), cos((float)glfwGetTime() ^ 2), sin((float)glfwGetTime() ^ 2))); //place it to the bottom right if the screen
+		glm::mat4 model = glm::mat4(1.0f);                                                    //model matrix
+		model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));         //rotate it in the x axis
+
+		glm::mat4 view = glm::mat4(1.0f);                                                     //view matrix
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));                            //move it ahead in the z axis
+
+		glm::mat4 projection;                                                                 //projection matrix
+		projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);    //give it perspective vision
+
+		int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		int viewLoc = glGetUniformLocation(ourShader.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+		int projLoc = glGetUniformLocation(ourShader.ID, "projection");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+	    /*glm::mat4 trans = glm::mat4(1.0f);                                                    //trans is a identity matrix
+        trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));            //rotate it by 90 degrees in z axis (Our polygon is in XY plane)
+        trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));                                  //scale it down to half the size
+
+        unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");          //find uniform transform in our shader code
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans)); */
+
+		/*glm::mat4 trans = glm::mat4(1.0f);                                                 //identity matrix
+		trans = glm::translate(trans, glm::vec3(sin((float)glfwGetTime() * 2), cos((float)glfwGetTime() * 2), sin((float)glfwGetTime() * 2))); //place it to the bottom right if the screen
 		trans = glm::rotate(trans, (float)glfwGetTime() * 5.0f, glm::vec3(0.0f, 0.0f, 1.0f));                                                 //rotate it in the z axis by time
 		trans = glm::scale(trans, glm::vec3(sin((float)glfwGetTime() * 2), sin((float)glfwGetTime() * 2), sin((float)glfwGetTime() * 2)));   //keeps increasing and decreasing the size from 1 to 0 to 1
 
 		unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");          //find uniform transform in our shader code
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans)); 
 
 		/* ^^^      1st argument specifies the uniform location
 					2nd argument tells OpenGL how many matrices we'd like to send
 					3rd argument asks us if we want to transpose our matrix, that is to swap the columns and rows
-					The last argument is the actual matrix data, we convert the data with GLM's built-in function value_ptr to match OpenGL's expectations */
+					The last argument is the actual matrix data, we convert the data with GLM's built-in function value_ptr to match OpenGL's expectations */ 
 
 		glfwSwapBuffers(window);         //will swap the color buffer that is used to render to during this render iteration and show it as output to the screen.
 		glfwPollEvents();                //checks if any events are triggered
