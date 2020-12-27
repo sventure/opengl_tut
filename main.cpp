@@ -17,7 +17,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);      //glfw to use core-profile, telling GLFW we want to use the core-profile means we'll get access to a smaller subset of OpenGL features without backwards-compatible features we no longer need.
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Hello Window", NULL, NULL);    // create window 800x600 with name hellowindow
+	GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Pogchamp poggers", NULL, NULL);    // create window 800x600 with name hellowindow
 	if (window == NULL)
 	{
 		cout << "Failed to create window" << endl;       
@@ -143,7 +143,16 @@ int main()
 	
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	// ^^^ When the window is first displayed framebuffer_size_callback gets called as well with the resulting window dimensions.
+	// ^^^ When the window is first displayed framebuffer_size_callback gets called as well with the resulting window dimensions.\
+
+	glm::mat4 trans = glm::mat4(1.0f);                                                    //trans is a identity matrix
+	trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));            //rotate it by 90 degrees in z axis (Our polygon is in XY plane)
+	trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));                                  //scale it down to half the size
+
+	unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");          //find uniform transform in our shader code
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+
 
 	while (!glfwWindowShouldClose(window)) 
 	{
@@ -172,7 +181,18 @@ int main()
 	//	glDrawArrays(GL_TRIANGLES, 0, 3);                      //draw Triangle
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);   //draw elements
 
+		glm::mat4 trans = glm::mat4(1.0f);                                                 //identity matrix
+		trans = glm::translate(trans, glm::vec3(sin((float)glfwGetTime() ^ 2), cos((float)glfwGetTime() ^ 2), sin((float)glfwGetTime() ^ 2))); //place it to the bottom right if the screen
+		trans = glm::rotate(trans, (float)glfwGetTime() * 5.0f, glm::vec3(0.0f, 0.0f, 1.0f));                                                 //rotate it in the z axis by time
+		trans = glm::scale(trans, glm::vec3(sin((float)glfwGetTime() * 2), sin((float)glfwGetTime() * 2), sin((float)glfwGetTime() * 2)));   //keeps increasing and decreasing the size from 1 to 0 to 1
 
+		unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");          //find uniform transform in our shader code
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+		/* ^^^      1st argument specifies the uniform location
+					2nd argument tells OpenGL how many matrices we'd like to send
+					3rd argument asks us if we want to transpose our matrix, that is to swap the columns and rows
+					The last argument is the actual matrix data, we convert the data with GLM's built-in function value_ptr to match OpenGL's expectations */
 
 		glfwSwapBuffers(window);         //will swap the color buffer that is used to render to during this render iteration and show it as output to the screen.
 		glfwPollEvents();                //checks if any events are triggered
