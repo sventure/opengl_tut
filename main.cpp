@@ -50,7 +50,7 @@ int main()
 		return -1;
 	}
 
-	//glEnable(GL_DEPTH_TEST);                               //enables Z buffer
+	glEnable(GL_DEPTH_TEST);                               //enables Z buffer
 
 	Shader ourShader("D:/Visual Studio repo/opengl_tut/shaders/vertexShader.vs","D:/Visual Studio repo/opengl_tut/shaders/fragmentShader.fs");      //use shader files
 
