@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include <algorithm>
+#include <stdlib.h> 
+#include <time.h>
 
 #include <glad/glad.h>
 #include <glfw3.h>

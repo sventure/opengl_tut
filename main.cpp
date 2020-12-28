@@ -118,7 +118,7 @@ int main()
 		glm::vec3(1.3f, -2.0f, -2.5f),
 		glm::vec3(1.5f,  2.0f, -2.5f),
 		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
+		glm::vec3(-1.3f,  1.0f, -1.5f),
 	};
 
 	unsigned int VBO, VAO, EBO;
@@ -216,6 +216,21 @@ int main()
 
 	// ^^^ When the window is first displayed framebuffer_size_callback gets called as well with the resulting window dimensions.\
 
+	srand(time(NULL));
+
+	glm::vec3 randPos[100];
+	float randomRot[100];
+
+	for (int i = 0; i < 100; i++)
+	{
+		float x = rand() % 20 - 20;
+		float y = rand() % 20 - 20;
+		float z = rand() % 20 - 20;                                       //INIT random rotation and position for cubes
+		randPos[i] = glm::vec3(x, y, z);
+		float rot = rand() % 180 - 180;
+		randomRot[i] = rot;
+	}
+
 	while (!glfwWindowShouldClose(window)) 
 	{
 		//setting up delta time
@@ -273,6 +288,9 @@ int main()
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 			cameraPos += cameraSpeed * cameraRight;
 
+		cameraPos.y = 0.0f; //keeps the cam in xz plane
+
+
 		//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));                            //move it ahead in the z axis
 
 		glm::mat4 projection;                                                                 //projection matrix
@@ -286,11 +304,11 @@ int main()
 
 		glm::mat4 model = glm::mat4(1.0f);                                                    //model matrix
 
-		for (unsigned int i = 0; i < 10; i++)
+		for (unsigned int i = 0; i < 100; i++)
 		{
 			//glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * (i + 1.0f) * float(glfwGetTime());
+			model = glm::translate(model, randPos[i]);
+			float angle = randomRot[i] * float(glfwGetTime());
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 	        //model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 			int modelLoc = glGetUniformLocation(ourShader.ID, "model");
