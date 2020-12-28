@@ -1,14 +1,31 @@
-//#include"libs.h"
-
 #include "libs.h"
 #include "shaders.h"
 #include "stb_image.h"
+
+const unsigned int SCR_HEIGHT = 1920;
+const unsigned int SCR_WIDTH = 1080;
 
 using namespace std;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);                    //camera variables
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 cameraRight = glm::normalize(glm::cross(cameraFront, cameraUp));
+
+float yaw = -90.0f;	//yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
+float pitch = 0.0f;
+bool firstMouse = true;
+float lastx = SCR_HEIGHT/2;               //init cursor in centre
+float lasty = SCR_WIDTH/2;
+float fov = 45.0f;
 
 int main()
 {
@@ -17,7 +34,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);      //glfw to use core-profile, telling GLFW we want to use the core-profile means we'll get access to a smaller subset of OpenGL features without backwards-compatible features we no longer need.
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Pogchamp poggers", NULL, NULL);    // create window 800x600 with name hellowindow
+	GLFWwindow* window = glfwCreateWindow(SCR_HEIGHT, SCR_WIDTH, "OpenGL Pogchamp poggers", NULL, NULL);    // create window 800x600 with name 
 	if (window == NULL)
 	{
 		cout << "Failed to create window" << endl;       
@@ -33,12 +50,15 @@ int main()
 		return -1;
 	}
 
-	glEnable(GL_DEPTH_TEST);                               //enables Z buffer
+	//glEnable(GL_DEPTH_TEST);                               //enables Z buffer
 
 	Shader ourShader("D:/Visual Studio repo/opengl_tut/shaders/vertexShader.vs","D:/Visual Studio repo/opengl_tut/shaders/fragmentShader.fs");      //use shader files
 
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);            //allows mouse input
 
-
+	glfwSetCursorPosCallback(window, mouse_callback);                       //each time the mouse moves, the function is called
+	glfwSetScrollCallback(window, scroll_callback);                         //each time mouse scrolled, function called
+	 
 	float vertices[] = {
 	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -190,7 +210,7 @@ int main()
 	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0); // set it manually
 	ourShader.setInt("texture2", 1); // or with shader class
 
-	glViewport(0, 0, 800, 600);                                                 //create viewport
+	glViewport(0, 0, SCR_HEIGHT, SCR_WIDTH);                                                 //create viewport
 	
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
@@ -198,6 +218,11 @@ int main()
 
 	while (!glfwWindowShouldClose(window)) 
 	{
+		//setting up delta time
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
 		processInput(window);
 
 		glClearColor(0.7f, 0.2f, 0.6f, 1.0f);
@@ -222,19 +247,42 @@ int main()
 	//	glDrawArrays(GL_TRIANGLES, 0, 36);                      //draw Triangle
 	//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);   //draw elements
 
+	/*	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+		glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 cameraDir = glm::normalize(cameraPos - cameraTarget);             //camera z dir
 
+		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f); 
+		glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDir));          //camera x dir
 
-		glm::mat4 view = glm::mat4(1.0f);                                                     //view matrix
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));                            //move it ahead in the z axis
+		glm::vec3 cameraUp = glm::normalize(glm::cross(cameraDir, cameraRight));    //camera y dir */
+
+	//	const float radius = 10.0f;
+	//	float camX = sin(glfwGetTime()) * radius;
+	//	float camZ = cos(glfwGetTime()) * radius;
+
+		glm::mat4 view;                                                    //view matrix
+		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);  //1st - pos, 2nd - target, 3rd - up
+
+		const float cameraSpeed = 5.0f * deltaTime;
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			cameraPos += cameraSpeed * cameraFront;
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			cameraPos -= cameraSpeed * cameraFront;
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			cameraPos -= cameraSpeed * cameraRight;
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			cameraPos += cameraSpeed * cameraRight;
+
+		//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));                            //move it ahead in the z axis
 
 		glm::mat4 projection;                                                                 //projection matrix
-		projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);    //give it perspective vision
+		projection = glm::perspective(glm::radians(fov), float(SCR_HEIGHT) / float(SCR_WIDTH), 0.1f, 100.0f);    //give it perspective vision
 
 		int viewLoc = glGetUniformLocation(ourShader.ID, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));                       //set view value
 
 		int projLoc = glGetUniformLocation(ourShader.ID, "projection");
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));                 //set pr value
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));                 //set proj value
 
 		glm::mat4 model = glm::mat4(1.0f);                                                    //model matrix
 
@@ -242,9 +290,9 @@ int main()
 		{
 			//glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
+			float angle = 20.0f * (i + 1.0f) * float(glfwGetTime());
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+	        //model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 			int modelLoc = glGetUniformLocation(ourShader.ID, "model");
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 			model = glm::mat4(1.0f);
@@ -295,4 +343,47 @@ void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)             //checks for key inputs
 		glfwSetWindowShouldClose(window, true);
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (firstMouse)                                        //true by default
+	{
+		lastx = xpos;
+		lasty = ypos;                                      //sets starting mouse pos to the mouse pos from where the cursor enters the screen
+		firstMouse = false;
+	}
+
+	//calculate offset from previous frame
+	float xoffset = xpos - lastx;
+	float yoffset = lasty - ypos;    //reversed since y-coordinates range from bottom to top
+	lastx = xpos;                    
+	lasty = ypos;
+
+	const float sensitivity = 0.1f;
+	xoffset *= sensitivity;                     //sensitivity
+	yoffset *= sensitivity;
+
+	yaw += xoffset;
+	pitch += yoffset;                           //add offset values to yaw and pitch (globally declared)
+
+	if (pitch > 89.0f)
+		pitch = 89.0f;                          //clamp pitch
+	if (pitch < -89.0f)
+		pitch = -89.0f;
+
+	glm::vec3 direction;
+	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	direction.y = sin(glm::radians(pitch));                                        //mouse look vectors
+	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(direction);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	fov -= (float)yoffset;
+	if (fov < 1.0f)
+		fov = 1.0f;
+	if (fov > 45.0f)
+		fov = 45.0f;
 }
