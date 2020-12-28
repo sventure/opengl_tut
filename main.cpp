@@ -33,7 +33,9 @@ int main()
 		return -1;
 	}
 
-	Shader ourShader("D:/Visual Studio repo/opengl_tut/shaders/vertexShader.vs","D:/Visual Studio repo/opengl_tut/shaders/fragmentShader.fs");
+	glEnable(GL_DEPTH_TEST);                               //enables Z buffer
+
+	Shader ourShader("D:/Visual Studio repo/opengl_tut/shaders/vertexShader.vs","D:/Visual Studio repo/opengl_tut/shaders/fragmentShader.fs");      //use shader files
 
 
 
@@ -84,6 +86,19 @@ int main()
 	unsigned int indices[] = {
 		0, 1, 3,          //first triangle
 		1, 2, 3           //second triangle
+	};
+
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),                                    //different cube positions in the world
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
 	unsigned int VBO, VAO, EBO;
@@ -185,9 +200,8 @@ int main()
 	{
 		processInput(window);
 
-
 		glClearColor(0.7f, 0.2f, 0.6f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);              //clear the color buffer, the entire color buffer will be filled with the color as configured  
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);              //clear the color and depth buffer 
 /*
 		float timeValue = glfwGetTime();
 		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;                               //changing color
@@ -205,11 +219,10 @@ int main()
 		glBindVertexArray(VAO);                                //bind VAO again with updated settings 
 		glBindBuffer(GL_ARRAY_BUFFER, EBO);                    //bind EBO again with updated settings 
 	//  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);             //wireframe mode
-		glDrawArrays(GL_TRIANGLES, 0, 36);                      //draw Triangle
+	//	glDrawArrays(GL_TRIANGLES, 0, 36);                      //draw Triangle
 	//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);   //draw elements
 
-		glm::mat4 model = glm::mat4(1.0f);                                                    //model matrix
-		model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));         //rotate it in the x axis
+
 
 		glm::mat4 view = glm::mat4(1.0f);                                                     //view matrix
 		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));                            //move it ahead in the z axis
@@ -217,14 +230,30 @@ int main()
 		glm::mat4 projection;                                                                 //projection matrix
 		projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);    //give it perspective vision
 
-		int modelLoc = glGetUniformLocation(ourShader.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
 		int viewLoc = glGetUniformLocation(ourShader.ID, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));                       //set view value
 
 		int projLoc = glGetUniformLocation(ourShader.ID, "projection");
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));                 //set pr value
+
+		glm::mat4 model = glm::mat4(1.0f);                                                    //model matrix
+
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			//glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+			int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			model = glm::mat4(1.0f);
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
+	//	model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));         //rotate it in the x axis
+
 
 	    /*glm::mat4 trans = glm::mat4(1.0f);                                                    //trans is a identity matrix
         trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));            //rotate it by 90 degrees in z axis (Our polygon is in XY plane)
