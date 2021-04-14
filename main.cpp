@@ -34,7 +34,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);      //glfw to use core-profile, telling GLFW we want to use the core-profile means we'll get access to a smaller subset of OpenGL features without backwards-compatible features we no longer need.
 
-	GLFWwindow* window = glfwCreateWindow(SCR_HEIGHT, SCR_WIDTH, "OpenGL Pogchamp poggers", NULL, NULL);    // create window 800x600 with name 
+	GLFWwindow* window = glfwCreateWindow(SCR_HEIGHT, SCR_WIDTH, "OpenGL Game", NULL, NULL);    // create window 800x600 with name 
 	if (window == NULL)
 	{
 		cout << "Failed to create window" << endl;       
@@ -278,6 +278,8 @@ int main()
 		glm::mat4 view;                                                    //view matrix
 		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);  //1st - pos, 2nd - target, 3rd - up
 
+		glm::vec3 cameraRight = glm::normalize(glm::cross(cameraFront, cameraUp));
+
 		const float cameraSpeed = 5.0f * deltaTime;
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 			cameraPos += cameraSpeed * cameraFront;
@@ -309,7 +311,7 @@ int main()
 			//glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, randPos[i]);
 			float angle = randomRot[i] * float(glfwGetTime());
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f));
 	        //model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 			int modelLoc = glGetUniformLocation(ourShader.ID, "model");
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
